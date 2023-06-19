@@ -1,20 +1,23 @@
 import { SignInFormFields } from "./SignInForm";
 import styled from "styled-components";
 import MyLink from "../../helpers/MyLink";
+import { TouchableWithoutFeedback, Keyboard } from "react-native";
 
 export const LoginScreen = () => {
   return (
-    <SignInPage>
-      <AuthWrapper>
-        <Title>Увійти</Title>
-        <SignInFormFields />
-        <MyLink
-          url="#"
-          text="Немає аккаунту? Зареєструватись"
-          textColor={"#1b4371"}
-        />
-      </AuthWrapper>
-    </SignInPage>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SignInPage>
+        <AuthWrapper>
+          <Title>Увійти</Title>
+          <SignInFormFields />
+          <MyLink
+            url="#"
+            text="Немає аккаунту? Зареєструватись"
+            textColor={"#1b4371"}
+          />
+        </AuthWrapper>
+      </SignInPage>
+    </TouchableWithoutFeedback>
   );
 };
 

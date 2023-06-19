@@ -2,21 +2,24 @@ import AddSvg from "../../../assets/svg/AddSvg";
 import { SignUpFormFields } from "./SignUpForm";
 import styled from "styled-components";
 import MyLink from "../../helpers/MyLink";
+import { TouchableWithoutFeedback, Keyboard } from "react-native";
 
 export const RegistrationScreen = () => {
   return (
-    <SignUpPage>
-      <AuthWrapper>
-        <AvatarBox>
-          <Avatar>
-            <AddCross />
-          </Avatar>
-        </AvatarBox>
-        <Title>Реєстрація</Title>
-        <SignUpFormFields />
-        <MyLink url="#" text="Вже є акаунт? Увійти" textColor={"#1b4371"} />
-      </AuthWrapper>
-    </SignUpPage>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SignUpPage>
+        <AuthWrapper>
+          <AvatarBox>
+            <Avatar>
+              <AddCross />
+            </Avatar>
+          </AvatarBox>
+          <Title>Реєстрація</Title>
+          <SignUpFormFields />
+          <MyLink url="#" text="Вже є акаунт? Увійти" textColor={"#1b4371"} />
+        </AuthWrapper>
+      </SignUpPage>
+    </TouchableWithoutFeedback>
   );
 };
 

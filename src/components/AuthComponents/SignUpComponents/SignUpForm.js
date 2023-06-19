@@ -1,5 +1,6 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
+import { KeyboardAvoidingView } from "react-native";
 
 import styled from "styled-components/native";
 
@@ -16,7 +17,7 @@ export const SignUpFormFields = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleFormSubmit = (values) => {
+  const handleFormSubmit = (values, { resetForm }) => {
     console.log(values);
     resetForm();
   };
@@ -27,27 +28,41 @@ export const SignUpFormFields = () => {
     <Formik initialValues={initialValues} onSubmit={handleFormSubmit}>
       {({ handleChange, handleSubmit, values }) => (
         <SignUpForm>
-          <SignUpInput
-            onChangeText={handleChange("login")}
-            value={values.login}
-            placeholder="Логін"
-          />
-          <SignUpInput
-            onChangeText={handleChange("email")}
-            value={values.email}
-            placeholder="Адреса електронної пошти"
-          />
-          <PasswordWrapper>
+          <KeyboardAvoidingView
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          >
             <SignUpInput
-              onChangeText={handleChange("password")}
-              value={values.password}
-              placeholder="Пароль"
-              secureTextEntry={showPassword}
+              onChangeText={handleChange("login")}
+              value={values.login}
+              placeholder="Логін"
             />
-            <ShowPasswordButton onPress={handleTogglePassword}>
-              <ShowPasswordText>{textToDisplay}</ShowPasswordText>
-            </ShowPasswordButton>
-          </PasswordWrapper>
+          </KeyboardAvoidingView>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          >
+            <SignUpInput
+              onChangeText={handleChange("email")}
+              value={values.email}
+              placeholder="Адреса електронної пошти"
+            />
+          </KeyboardAvoidingView>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          >
+            <PasswordWrapper>
+              <SignUpInput
+                onChangeText={handleChange("password")}
+                value={values.password}
+                placeholder="Пароль"
+                secureTextEntry={showPassword}
+              />
+              <ShowPasswordButton onPress={handleTogglePassword}>
+                <ShowPasswordText>{textToDisplay}</ShowPasswordText>
+              </ShowPasswordButton>
+            </PasswordWrapper>
+          </KeyboardAvoidingView>
 
           <SubmitButton onPress={handleSubmit} title="Submit">
             <ButtonText>Зареєстуватися</ButtonText>

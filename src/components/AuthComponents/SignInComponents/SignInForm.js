@@ -1,5 +1,6 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
+import { KeyboardAvoidingView } from "react-native";
 
 import styled from "styled-components/native";
 
@@ -15,7 +16,7 @@ export const SignInFormFields = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleFormSubmit = (values) => {
+  const handleFormSubmit = (values, { resetForm }) => {
     console.log(values);
     resetForm();
   };
@@ -26,22 +27,31 @@ export const SignInFormFields = () => {
     <Formik initialValues={initialValues} onSubmit={handleFormSubmit}>
       {({ handleChange, handleSubmit, values }) => (
         <SignInForm>
-          <SignInInput
-            onChangeText={handleChange("email")}
-            value={values.email}
-            placeholder="Адреса електронної пошти"
-          />
-          <PasswordWrapper>
+          <KeyboardAvoidingView
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          >
             <SignInInput
-              onChangeText={handleChange("password")}
-              value={values.password}
-              placeholder="Пароль"
-              secureTextEntry={showPassword}
+              onChangeText={handleChange("email")}
+              value={values.email}
+              placeholder="Адреса електронної пошти"
             />
-            <ShowPasswordButton onPress={handleTogglePassword}>
-              <ShowPasswordText>{textToDisplay}</ShowPasswordText>
-            </ShowPasswordButton>
-          </PasswordWrapper>
+          </KeyboardAvoidingView>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          >
+            <PasswordWrapper>
+              <SignInInput
+                onChangeText={handleChange("password")}
+                value={values.password}
+                placeholder="Пароль"
+                secureTextEntry={showPassword}
+              />
+              <ShowPasswordButton onPress={handleTogglePassword}>
+                <ShowPasswordText>{textToDisplay}</ShowPasswordText>
+              </ShowPasswordButton>
+            </PasswordWrapper>
+          </KeyboardAvoidingView>
 
           <SubmitButton onPress={handleSubmit} title="Submit">
             <ButtonText>Увійти</ButtonText>
