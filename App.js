@@ -10,7 +10,10 @@ export default function App() {
     <Container>
       <RegistrationScreen></RegistrationScreen>
     </Container>
-    // <LoginScreen></LoginScreen>
+    // <Container>
+    //   <LoginScreen></LoginScreen>
+    // </Container>
+    //
     //    <View>
     //   <PostsScreen />
     // </View>
