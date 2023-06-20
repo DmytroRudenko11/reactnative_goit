@@ -1,9 +1,9 @@
 import { TouchableOpacity, Text, Linking } from "react-native";
 import styled from "styled-components";
 
-const MyLink = ({ url, text, textColor }) => {
+const MyLink = ({ screen, text, textColor, navigation }) => {
   const handlePress = () => {
-    Linking.openURL(url);
+    navigation.navigate(`${screen}`);
   };
 
   return (

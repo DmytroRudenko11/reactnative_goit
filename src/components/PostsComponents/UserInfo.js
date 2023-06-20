@@ -1,6 +1,6 @@
 import { Text, View, Image } from "react-native";
 import styled from "styled-components/native";
-import UserImage from "../../../assets/images/user.jpg";
+import UserImage from "../../assets/images/user.jpg";
 // import { Image } from "styled-components/native";
 
 export const UserInfo = () => {

@@ -1,8 +1,8 @@
 // import { View, Text, Button, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
-import UserSvg from "../../../assets/svg/UserSvg";
-import GridSvg from "../../../assets/svg/GridSvg";
-import AddPostSvg from "../../../assets/svg/AddPostSvg";
+import UserSvg from "../../assets/svg/UserSvg";
+import GridSvg from "../../assets/svg/GridSvg";
+import AddPostSvg from "../../assets/svg/AddPostSvg";
 
 export const FooterMenu = () => {
   return (
