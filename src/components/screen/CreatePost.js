@@ -29,7 +29,7 @@ export const CreatePost = () => {
   };
 
   const handleReset = ({ resetForm }) => {
-    console.log(resetForm());
+    resetForm();
   };
 
   initialValues = {

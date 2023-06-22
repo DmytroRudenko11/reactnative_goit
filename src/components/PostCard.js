@@ -6,6 +6,7 @@ import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CommentSvg from "../assets/svg/CommentSvg";
 import ThumbUpSvg from "../assets/svg/ThumbUpSvg";
+import { useNavigation } from "@react-navigation/native";
 
 export const PostCard = ({ location, comments, likes, title, image }) => {
   const [fillCommentSvg, setFillCommentSvg] = useState("transparent");
@@ -13,6 +14,12 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
   const [commentCount, setCommentCount] = useState(comments);
   const [uLike, setULike] = useState(false);
   const [likesCount, setLikesCount] = useState(likes);
+
+  const navigation = useNavigation();
+
+  const handleCommentsRedirect = (image) => {
+    navigation.navigate("Comments", { image });
+  };
 
   useEffect(() => {
     setFillCommentSvg(commentCount > 0 ? "#FF6C00" : "transparent");
@@ -31,7 +38,10 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
       <PostInfo>
         <InfoWrapper>
           <InfoItemWrapper>
-            <CommentSvg fill={fillCommentSvg} />
+            <CommentSvg
+              fill={fillCommentSvg}
+              onPress={() => handleCommentsRedirect(image)}
+            />
             <Text style={{ color: "#212121" }}>{commentCount}</Text>
           </InfoItemWrapper>
           <InfoItemWrapper>
