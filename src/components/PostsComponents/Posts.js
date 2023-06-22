@@ -19,6 +19,7 @@ const UserInfoContainer = styled.View`
 `;
 
 const PostsScreenContainer = styled.View`
+  background-color: white;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;

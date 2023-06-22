@@ -1,3 +1,4 @@
+import { Text } from "react-native";
 import styled from "styled-components";
 
 const AuthContainer = ({ children }) => {

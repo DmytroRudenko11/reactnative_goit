@@ -7,10 +7,8 @@ import { StatusBar } from "react-native";
 
 import { RegistrationScreen } from "./src/components/AuthComponents/SignUpComponents/RegistrationScreen";
 import { LoginScreen } from "./src/components/AuthComponents/SignInComponents/LoginScreen";
-import { Posts } from "./src/components/PostsComponents/Posts";
-// import LogoutSVG from "./src/assets/svg/LogoutSvg";
 import { PostsScreen } from "./src/components/screen/PostsScreen";
-import LogoutSVG from "./src/assets/svg/LogoutSvg";
+import { CommentsScreen } from "./src/components/screen/CommentsScreen";
 
 const MainStack = createStackNavigator();
 
@@ -33,34 +31,13 @@ export default function App() {
           name="Home"
           component={PostsScreen}
           options={{ headerShown: false }}
-          // options={{
-          //   title: "Публікації",
-          //   headerStyle: {
-          //     height: 60,
-          //     backgroundColor: "#FFFFFF",
-          //   },
-          //   headerTintColor: "#212121",
-          //   headerTitleAlign: "center",
-          //   headerTitleStyle: {
-          //     fontWeight: "bold",
-          //     fontSize: 17,
-          //     fontWeight: 500,
-          //     letterSpacing: -0.408,
-          //   },
-          //   headerRight: () => (
-          //     <LogoutButton onPress={() => alert("This is a button!")}>
-          //       {/* <LogoutSVG /> */}
-          //     </LogoutButton>
-          //   ),
-          // }}
         />
+        {/* <MainStack.Screen
+          name="Comments"
+          component={CommentsScreen}
+          options={{ tabBarVisible: false }}
+        /> */}
       </MainStack.Navigator>
     </NavigationContainer>
   );
 }
-
-const LogoutButton = styled.TouchableOpacity`
-  margin-right: 16px;
-  width: 24px;
-  height: 24px;
-`;

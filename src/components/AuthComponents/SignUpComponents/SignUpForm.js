@@ -1,13 +1,15 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import styled from "styled-components/native";
 
 export const SignUpFormFields = () => {
   const [showPassword, setShowPassword] = useState(true);
-
   const [textToDisplay, setTextToDisplay] = useState("Показати");
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     setTextToDisplay(showPassword ? "Показати" : "Приховати");
@@ -19,6 +21,7 @@ export const SignUpFormFields = () => {
 
   const handleFormSubmit = (values, { resetForm }) => {
     console.log(values);
+    navigation.navigate("Home");
     resetForm();
   };
 

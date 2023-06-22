@@ -1,21 +1,25 @@
-import React from "react";
-import LogoutSVG from "../../assets/svg/LogoutSvg";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import styled from "styled-components/native";
-import { NavigationContainer } from "@react-navigation/native";
-import { Ionicons, Feather } from "@expo/vector-icons";
-import { CreatePost } from "../CreatePostScreen/CreatePost";
-import { UserProfile } from "../UserProfile/UserProfile";
+import { TouchableOpacity } from "react-native";
+
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+
+import { CreatePost } from "./CreatePost";
+import { UserProfileScreen } from "./UserProfileScreen";
+import { CommentsScreen } from "./CommentsScreen";
 import { Posts } from "../PostsComponents/Posts";
-import AddPostSvg from "../../assets/svg/AddPostSvg";
+import LogoutSVG from "../../assets/svg/LogoutSvg";
+
 const Tab = createBottomTabNavigator();
 
 export const PostsScreen = () => {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      screenOptions={({ route, navigation }) => ({
         title: "Публікації",
         headerStyle: {
+          borderBottomColor: "#e8e8e8",
+          borderBottomWidth: 1,
           height: 60,
           backgroundColor: "#FFFFFF",
         },
@@ -38,9 +42,26 @@ export const PostsScreen = () => {
             return null;
           }
         },
+        headerLeft: () => {
+          if (route.name === "CreatePost" || route.name === "Comments") {
+            return (
+              <TouchableOpacity
+                style={{ marginLeft: 16 }}
+                onPress={() => navigation.goBack()}
+              >
+                <Ionicons name="ios-arrow-back" size={24} color="#212121" />
+              </TouchableOpacity>
+            );
+          } else {
+            return null;
+          }
+        },
         tabBarStyle: {
-          height: 80,
+          height: 60,
+          paddingRight: 90,
+          paddingLeft: 90,
           paddingTop: 9,
+          paddingBottom: 0,
         },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -53,33 +74,58 @@ export const PostsScreen = () => {
             iconName = "person-outline";
           }
 
-          // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveBackgroundColor: "#ff6c00",
 
         tabBarItemStyle: {
-          // padding: 5,
-          // width: 70,
           height: 40,
           borderRadius: 20,
-          // justifyContent: "space-around",
-          // justifyContent: "center",
-          // alignItems: "center",
         },
         tabBarContentContainerStyle: {
           flexDirection: "row",
-          justifyContent: "space-around", // Применяем justifyContent: space-around
+          justifyContent: "space-around",
           alignItems: "center",
+          width: 70,
         },
         tabBarShowLabel: false,
         tabBarActiveTintColor: "#FFFFFF",
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen name="Posts" component={Posts} />
-      <Tab.Screen name="CreatePost" component={CreatePost} />
-      <Tab.Screen name="UserProfile" component={UserProfile} />
+      <Tab.Screen
+        name="Posts"
+        component={Posts}
+        options={{
+          headerRight: () => (
+            <LogoutButton onPress={() => alert("Sure?")}>
+              <LogoutSVG />
+            </LogoutButton>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="CreatePost"
+        component={CreatePost}
+        options={{
+          title: "Створити публікацію",
+          tabBarStyle: { display: "none" },
+        }}
+      />
+      <Tab.Screen
+        name="UserProfile"
+        component={UserProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Comments"
+        component={CommentsScreen}
+        options={{
+          tabBarVisible: false,
+          title: "Коментарі",
+          tabBarStyle: { display: "none" },
+        }}
+      />
     </Tab.Navigator>
   );
 };
@@ -88,19 +134,4 @@ const LogoutButton = styled.TouchableOpacity`
   margin-right: 16px;
   width: 24px;
   height: 24px;
-`;
-
-const AddButton = styled.TouchableOpacity`
-  width: 70px;
-  height: 40px;
-  background-color: #ff6c00;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-`;
-
-const SvgWrapper = styled.View`
-  width: 40px;
-  height: 40px;
-  justify-content: center;
 `;
