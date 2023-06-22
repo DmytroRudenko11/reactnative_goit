@@ -1,13 +1,25 @@
+import styled from "styled-components";
+
+import {
+  TouchableWithoutFeedback,
+  Keyboard,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
+import AuthContainer from "../../AuthContainer";
 import AddSvg from "../../../assets/svg/AddSvg";
 import { SignUpFormFields } from "./SignUpForm";
-import styled from "styled-components";
-import MyLink from "../../helpers/MyLink";
-import { TouchableWithoutFeedback, Keyboard } from "react-native";
 
 export const RegistrationScreen = () => {
+  const navigation = useNavigation();
+  const handleNavigation = () => {
+    navigation.navigate("SignIn");
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SignUpPage>
+      <AuthContainer>
         <AuthWrapper>
           <AvatarBox>
             <Avatar>
@@ -16,16 +28,17 @@ export const RegistrationScreen = () => {
           </AvatarBox>
           <Title>Реєстрація</Title>
           <SignUpFormFields />
-          <MyLink url="#" text="Вже є акаунт? Увійти" textColor={"#1b4371"} />
+          <TouchableOpacity onPress={handleNavigation}>
+            <LinkText>Вже є акаунт? Увійти</LinkText>
+          </TouchableOpacity>
         </AuthWrapper>
-      </SignUpPage>
+      </AuthContainer>
     </TouchableWithoutFeedback>
   );
 };
 
-const SignUpPage = styled.View`
-  flex: 1;
-  justify-content: flex-end;
+const LinkText = styled.Text`
+  color: #1b4371;
 `;
 
 const AuthWrapper = styled.View`

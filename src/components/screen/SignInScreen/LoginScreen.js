@@ -1,29 +1,39 @@
-import { SignInFormFields } from "./SignInForm";
 import styled from "styled-components";
-import MyLink from "../../helpers/MyLink";
-import { TouchableWithoutFeedback, Keyboard } from "react-native";
+
+import {
+  TouchableWithoutFeedback,
+  Keyboard,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
+import AuthContainer from "../../AuthContainer";
+import { SignInFormFields } from "./SignInForm";
 
 export const LoginScreen = () => {
+  const navigation = useNavigation();
+
+  const handleNavigation = () => {
+    navigation.navigate("SignUp");
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SignInPage>
+      <AuthContainer>
         <AuthWrapper>
           <Title>Увійти</Title>
           <SignInFormFields />
-          <MyLink
-            url="#"
-            text="Немає аккаунту? Зареєструватись"
-            textColor={"#1b4371"}
-          />
+          <TouchableOpacity onPress={handleNavigation}>
+            <LinkText>Немає аккаунту? Зареєструватись</LinkText>
+          </TouchableOpacity>
         </AuthWrapper>
-      </SignInPage>
+      </AuthContainer>
     </TouchableWithoutFeedback>
   );
 };
 
-const SignInPage = styled.View`
-  flex: 1;
-  justify-content: flex-end;
+const LinkText = styled.Text`
+  color: #1b4371;
 `;
 
 const AuthWrapper = styled.View`

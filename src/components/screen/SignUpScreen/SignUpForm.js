@@ -1,12 +1,15 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import styled from "styled-components/native";
 
-export const SignInFormFields = () => {
+export const SignUpFormFields = () => {
   const [showPassword, setShowPassword] = useState(true);
   const [textToDisplay, setTextToDisplay] = useState("Показати");
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     setTextToDisplay(showPassword ? "Показати" : "Приховати");
@@ -18,19 +21,30 @@ export const SignInFormFields = () => {
 
   const handleFormSubmit = (values, { resetForm }) => {
     console.log(values);
+    navigation.navigate("Home");
     resetForm();
   };
 
-  const initialValues = { email: "", password: "" };
+  const initialValues = { photo: null, login: "", email: "", password: "" };
 
   return (
     <Formik initialValues={initialValues} onSubmit={handleFormSubmit}>
       {({ handleChange, handleSubmit, values }) => (
-        <SignInForm>
+        <SignUpForm>
           <KeyboardAvoidingView
             behavior={Platform.OS == "ios" ? "padding" : "height"}
           >
-            <SignInInput
+            <SignUpInput
+              onChangeText={handleChange("login")}
+              value={values.login}
+              placeholder="Логін"
+            />
+          </KeyboardAvoidingView>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          >
+            <SignUpInput
               onChangeText={handleChange("email")}
               value={values.email}
               placeholder="Адреса електронної пошти"
@@ -41,7 +55,7 @@ export const SignInFormFields = () => {
             behavior={Platform.OS == "ios" ? "padding" : "height"}
           >
             <PasswordWrapper>
-              <SignInInput
+              <SignUpInput
                 onChangeText={handleChange("password")}
                 value={values.password}
                 placeholder="Пароль"
@@ -54,22 +68,22 @@ export const SignInFormFields = () => {
           </KeyboardAvoidingView>
 
           <SubmitButton onPress={handleSubmit} title="Submit">
-            <ButtonText>Увійти</ButtonText>
+            <ButtonText>Зареєстуватися</ButtonText>
           </SubmitButton>
-        </SignInForm>
+        </SignUpForm>
       )}
     </Formik>
   );
 };
 
-const SignInForm = styled.View`
+const SignUpForm = styled.View`
   display: flex;
   justify-content: space-between;
   width: 100%;
   margin-bottom: 16px;
 `;
 
-const SignInInput = styled.TextInput`
+const SignUpInput = styled.TextInput`
   padding: 16px;
   margin-bottom: 16px;
   background-color: #f6f6f6;
