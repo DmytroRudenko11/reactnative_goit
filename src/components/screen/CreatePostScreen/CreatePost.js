@@ -7,8 +7,30 @@ import { useEffect, useState } from "react";
 import { TouchableWithoutFeedback } from "react-native";
 import { Keyboard } from "react-native";
 
-export const CreatePost = () => {
+import { useNavigation } from "@react-navigation/native";
+import { optimizeCoords } from "../../helpers/optimizeCoords";
+
+import { AddPhoto } from "./AddPhoto";
+
+export const CreatePost = ({ route }) => {
   // const [ableToSubmit, setAbleToSubmit] = useState(true);
+  const [positionData, setPositionData] = useState(null);
+  // console.log(positionData);
+
+  let initialValues = {
+    photo: null,
+    title: "",
+    location: "",
+  };
+
+  useEffect(() => {
+    if (route.params && route.params.positionData) {
+      const newPositionData = route.params.positionData;
+      const chosenPosition = optimizeCoords(newPositionData);
+      setPositionData(chosenPosition);
+      // initialValues.location = newPositionData;
+    }
+  }, [route.params]);
 
   const selectImage = async (formikProps) => {
     ImagePicker.launchImageLibrary({ mediaType: "photo" }, (response) => {
@@ -17,7 +39,7 @@ export const CreatePost = () => {
       }
     });
   };
-
+  const navigation = useNavigation();
   const handleSubmit = (values, { resetForm }) => {
     // if (values.title === "") {
     //   setAbleToSubmit(true);
@@ -28,14 +50,12 @@ export const CreatePost = () => {
     resetForm();
   };
 
-  const handleReset = ({ resetForm }) => {
-    resetForm();
+  const handleLocationForm = () => {
+    navigation.navigate("Map");
   };
 
-  initialValues = {
-    photo: null,
-    title: "",
-    location: "",
+  const handleReset = ({ resetForm }) => {
+    resetForm();
   };
 
   return (
@@ -44,20 +64,21 @@ export const CreatePost = () => {
         {({ handleChange, handleBlur, handleSubmit, values, handleReset }) => (
           <FormContainer>
             <View>
-              <TouchableOpacity onPress={() => selectImage(values)}>
+              {/* <TouchableOpacity onPress={() => selectImage(values)}>
                 <ImageContainer>
                   <SvgWrapper>
                     <Ionicons name={"camera"} size={24} color="#BDBDBD" />
                   </SvgWrapper>
                 </ImageContainer>
                 <ImageFieldText>Завантажте фото</ImageFieldText>
-                {/* {values.photo && (
+                {values.photo && (
                 <Image
                   source={{ uri: values.photo }}
                   style={{ width: 200, height: 200 }}
                 />
-              )} */}
-              </TouchableOpacity>
+              )}
+              </TouchableOpacity> */}
+              <AddPhoto />
               <TitleInput
                 placeholder="Назва..."
                 placeholderTextColor="#BDBDBD"
@@ -66,13 +87,18 @@ export const CreatePost = () => {
                 value={values.title}
               />
               <LocationWrapper>
-                <Ionicons name={"location-outline"} size={24} color="#BDBDBD" />
+                <Ionicons
+                  name={"location-outline"}
+                  size={24}
+                  color="#BDBDBD"
+                  onPress={handleLocationForm}
+                />
                 <LocationInput
                   placeholder="Місцевість..."
                   placeholderTextColor="#BDBDBD"
                   onChangeText={handleChange("location")}
                   onBlur={handleBlur("location")}
-                  value={values.location}
+                  value={positionData ? positionData : values.location}
                 />
               </LocationWrapper>
               <SubmitBtn onPress={handleSubmit}>

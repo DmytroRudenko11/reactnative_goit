@@ -1,5 +1,6 @@
 {
   "expo": {
+    "plugins": ["expo-camera"],
     "name": "reactnative_goit",
     "slug": "reactnative_goit",
     "version": "1.0.0",

@@ -4,7 +4,7 @@ import { TouchableOpacity } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
-import { CreatePost } from "../components/screen/CreatePost";
+import { CreatePost } from "../components/screen/CreatePostScreen/CreatePost";
 import { UserProfileScreen } from "../components/screen/UserProfileScreen";
 import { PostsScreen } from "../components/screen/PostsScreen";
 // import { Posts } from "../components/PostsComponents/Posts";
