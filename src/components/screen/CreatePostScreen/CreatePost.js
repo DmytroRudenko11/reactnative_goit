@@ -5,7 +5,7 @@ import { Formik } from "formik";
 import * as ImagePicker from "react-native-image-picker";
 import { useEffect, useState } from "react";
 import { TouchableWithoutFeedback } from "react-native";
-import { Keyboard } from "react-native";
+import { Keyboard, Image } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
 import { optimizeCoords } from "../../helpers/optimizeCoords";
@@ -13,12 +13,14 @@ import { optimizeCoords } from "../../helpers/optimizeCoords";
 import { AddPhoto } from "./AddPhoto";
 
 export const CreatePost = ({ route }) => {
-  // const [ableToSubmit, setAbleToSubmit] = useState(true);
   const [positionData, setPositionData] = useState(null);
-  // console.log(positionData);
+  const [imageURI, setImageURI] = useState(null);
+  const [displayCam, setDisplayCam] = useState(false);
+
+  const navigation = useNavigation();
 
   let initialValues = {
-    photo: null,
+    photo: imageURI,
     title: "",
     location: "",
   };
@@ -28,25 +30,12 @@ export const CreatePost = ({ route }) => {
       const newPositionData = route.params.positionData;
       const chosenPosition = optimizeCoords(newPositionData);
       setPositionData(chosenPosition);
-      // initialValues.location = newPositionData;
     }
   }, [route.params]);
 
-  const selectImage = async (formikProps) => {
-    ImagePicker.launchImageLibrary({ mediaType: "photo" }, (response) => {
-      if (!response.didCancel && !response.error) {
-        formikProps.setFieldValue("photo", response.uri);
-      }
-    });
-  };
-  const navigation = useNavigation();
   const handleSubmit = (values, { resetForm }) => {
-    // if (values.title === "") {
-    //   setAbleToSubmit(true);
-    //   return;
-    // }
-    // setAbleToSubmit(false);
     console.log(values);
+    values.photo = null;
     resetForm();
   };
 
@@ -54,65 +43,76 @@ export const CreatePost = ({ route }) => {
     navigation.navigate("Map");
   };
 
-  const handleReset = ({ resetForm }) => {
+  const handleReset = (values, { resetForm }) => {
+    setImageURI(null);
     resetForm();
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ handleChange, handleBlur, handleSubmit, values, handleReset }) => (
-          <FormContainer>
-            <View>
-              {/* <TouchableOpacity onPress={() => selectImage(values)}>
-                <ImageContainer>
-                  <SvgWrapper>
-                    <Ionicons name={"camera"} size={24} color="#BDBDBD" />
-                  </SvgWrapper>
-                </ImageContainer>
-                <ImageFieldText>Завантажте фото</ImageFieldText>
-                {values.photo && (
-                <Image
-                  source={{ uri: values.photo }}
-                  style={{ width: 200, height: 200 }}
-                />
-              )}
-              </TouchableOpacity> */}
-              <AddPhoto />
-              <TitleInput
-                placeholder="Назва..."
-                placeholderTextColor="#BDBDBD"
-                onChangeText={handleChange("title")}
-                onBlur={handleBlur("title")}
-                value={values.title}
-              />
-              <LocationWrapper>
-                <Ionicons
-                  name={"location-outline"}
-                  size={24}
-                  color="#BDBDBD"
-                  onPress={handleLocationForm}
-                />
-                <LocationInput
-                  placeholder="Місцевість..."
-                  placeholderTextColor="#BDBDBD"
-                  onChangeText={handleChange("location")}
-                  onBlur={handleBlur("location")}
-                  value={positionData ? positionData : values.location}
-                />
-              </LocationWrapper>
-              <SubmitBtn onPress={handleSubmit}>
-                <SubmitText>Опубліковати</SubmitText>
-              </SubmitBtn>
-            </View>
+    <>
+      {displayCam ? (
+        <AddPhoto setDisplayCam={setDisplayCam} setImageURI={setImageURI} />
+      ) : (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              handleReset,
+            }) => (
+              <FormContainer>
+                <View>
+                  <ImageContainer>
+                    {values.photo && (
+                      <PostPhoto source={{ uri: values.photo }} />
+                    )}
+                    <SvgWrapper onPress={() => setDisplayCam(true)}>
+                      <Ionicons name={"camera"} size={24} color="#BDBDBD" />
+                    </SvgWrapper>
+                  </ImageContainer>
+                  <ImageFieldText>Завантажте фото</ImageFieldText>
+                  <TitleInput
+                    placeholder="Назва..."
+                    placeholderTextColor="#BDBDBD"
+                    onChangeText={handleChange("title")}
+                    onBlur={handleBlur("title")}
+                    value={values.title}
+                  />
+                  <LocationWrapper>
+                    <Ionicons
+                      name={"location-outline"}
+                      size={24}
+                      color="#BDBDBD"
+                      onPress={handleLocationForm}
+                    />
+                    <LocationInput
+                      placeholder="Місцевість..."
+                      placeholderTextColor="#BDBDBD"
+                      onChangeText={handleChange("location")}
+                      onBlur={handleBlur("location")}
+                      value={positionData ? positionData : values.location}
+                    />
+                  </LocationWrapper>
+                  <SubmitBtn onPress={handleSubmit}>
+                    <SubmitText>Опубліковати</SubmitText>
+                  </SubmitBtn>
+                </View>
 
-            <DeleteButton onPress={handleReset}>
-              <Ionicons name={"md-trash-outline"} size={24} color={"#BDBDBD"} />
-            </DeleteButton>
-          </FormContainer>
-        )}
-      </Formik>
-    </TouchableWithoutFeedback>
+                <DeleteButton onPress={handleReset}>
+                  <Ionicons
+                    name={"md-trash-outline"}
+                    size={24}
+                    color={"#BDBDBD"}
+                  />
+                </DeleteButton>
+              </FormContainer>
+            )}
+          </Formik>
+        </TouchableWithoutFeedback>
+      )}
+    </>
   );
 };
 
@@ -125,7 +125,13 @@ const FormContainer = styled.View`
   background-color: white;
 `;
 
+const PostPhoto = styled(Image)`
+  width: 100%;
+  height: 100%;
+`;
+
 const ImageContainer = styled.View`
+  position: relative;
   width: 100%;
   height: 240px;
   justify-content: center;
@@ -137,7 +143,8 @@ const ImageContainer = styled.View`
   border-radius: 8px;
 `;
 
-const SvgWrapper = styled.View`
+const SvgWrapper = styled.TouchableOpacity`
+  position: absolute;
   width: 60px;
   height: 60px;
 
