@@ -1,6 +1,7 @@
 import Geocoder from "react-native-geocoding";
 
-Geocoder.init("AIzaSyBCXggptgMoAC1KBlfH1vahYPYhYDd7ZSU");
+const { GOOGLE_API } = process.env;
+Geocoder.init(GOOGLE_API);
 
 // export const getCountryFromCoordinates = async (latitude, longitude) => {
 //   try {

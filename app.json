@@ -1,6 +1,11 @@
 {
   "expo": {
     "plugins": ["expo-camera"],
+    "permissions": {
+      "camera": {
+        "access": "allow"
+      }
+    },
     "name": "reactnative_goit",
     "slug": "reactnative_goit",
     "version": "1.0.0",

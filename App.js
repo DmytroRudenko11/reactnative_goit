@@ -14,7 +14,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <StatusBar backgroundColor="transparent" barStyle="dark-content" />
-      <MainStack.Navigator initialRouteName="CreatePost">
+      <MainStack.Navigator initialRouteName="Home">
         <MainStack.Screen
           name="SignUp"
           component={RegistrationScreen}
@@ -34,5 +34,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-// AIzaSyBCXggptgMoAC1KBlfH1vahYPYhYDd7ZSU

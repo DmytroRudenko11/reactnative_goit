@@ -2,7 +2,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { CommentsScreen } from "../components/screen/CommentsScreen";
 import { PostsStack } from "./PostsStack";
 import { MapScreen } from "../components/screen/MapScreen";
-import { useState } from "react";
 
 export const RootStack = createStackNavigator();
 
