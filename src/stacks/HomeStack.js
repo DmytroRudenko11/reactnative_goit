@@ -1,6 +1,7 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { CommentsScreen } from "../components/screen/CommentsScreen";
 import { PostsStack } from "./PostsStack";
+import { MapScreen } from "../components/screen/MapScreen";
 
 export const RootStack = createStackNavigator();
 
@@ -19,6 +20,13 @@ export const HomeStack = () => {
         component={CommentsScreen}
         options={{
           title: "Коментарі",
+        }}
+      />
+      <RootStack.Screen
+        name="Map"
+        component={MapScreen}
+        options={{
+          title: "Мапа",
         }}
       />
     </RootStack.Navigator>

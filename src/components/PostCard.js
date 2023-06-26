@@ -21,6 +21,15 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
     navigation.navigate("Comments", { image });
   };
 
+  const handleMap = (coord) => {
+    console.log(coord);
+    const postLocation = {
+      latitude: coord[0],
+      longitude: coord[1],
+    };
+    navigation.navigate("Map", { postLocation });
+  };
+
   useEffect(() => {
     setFillCommentSvg(commentCount > 0 ? "#FF6C00" : "transparent");
     setFillThumbUpSvg(uLike ? "#FF6C00" : "transparent");
@@ -33,7 +42,7 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
 
   return (
     <CardWrapper>
-      <PostImage source={image} />
+      <PostImage source={{ uri: image }} />
       <PostTitle>{title}</PostTitle>
       <PostInfo>
         <InfoWrapper>
@@ -51,7 +60,7 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
         </InfoWrapper>
         <View>
           {location && (
-            <LocationWrapper>
+            <LocationWrapper onPress={() => handleMap(location)}>
               <Ionicons name={"location-outline"} size={24} color="#BDBDBD" />
               <LocationText>{location}</LocationText>
             </LocationWrapper>
@@ -97,7 +106,7 @@ const InfoItemWrapper = styled.View`
   gap: 8px;
 `;
 
-const LocationWrapper = styled.View`
+const LocationWrapper = styled.TouchableOpacity`
   flex-direction: row;
   gap: 4px;
 `;
