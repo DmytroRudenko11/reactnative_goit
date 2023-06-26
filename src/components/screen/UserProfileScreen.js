@@ -2,10 +2,18 @@ import styled from "styled-components";
 import AuthContainer from "../AuthContainer";
 import { Ionicons } from "@expo/vector-icons";
 import { PostCard } from "../PostCard";
-import PostPhoto from "../../assets/images/PostPhoto.jpg";
 import LogoutSVG from "../../assets/svg/LogoutSvg";
+import { useSelector } from "react-redux";
+import { selectPostState } from "../../redux/postSlice/postSelector";
 
 export const UserProfileScreen = () => {
+  const {
+    postContent: { title, imageURI, location },
+    likes,
+    comments: { count },
+  } = useSelector(selectPostState);
+  // console.log(location.split(",")[0]);
+
   return (
     <AuthContainer>
       <ProfileWrapper>
@@ -20,11 +28,11 @@ export const UserProfileScreen = () => {
         </AvatarBox>
         <UserName>Natali Romanova</UserName>
         <PostCard
-          location={"Ukraine"}
-          comments={1}
-          likes={7}
-          title={"some place"}
-          image={PostPhoto}
+          location={location}
+          comments={count}
+          likes={likes}
+          title={title}
+          image={imageURI}
         />
         <LogoutButton onPress={() => alert("Sure?")}>
           <LogoutSVG />

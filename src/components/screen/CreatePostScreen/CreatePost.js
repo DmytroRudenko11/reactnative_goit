@@ -1,29 +1,31 @@
-import React from "react";
 import styled from "styled-components/native";
-import { View } from "react-native";
+import React, { useEffect } from "react";
+import { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { View, TouchableWithoutFeedback, Keyboard, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Formik } from "formik";
-import { useEffect, useState } from "react";
-import { TouchableWithoutFeedback } from "react-native";
-import { Keyboard, Image } from "react-native";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-// import { optimizeCoords } from "../../helpers/optimizeCoords";
+import * as Location from "expo-location";
 
 import { AddPhoto } from "./AddPhoto";
 
-import * as Location from "expo-location";
+import { addPost, addPosition } from "../../../redux/postSlice/postSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectPostState } from "../../../redux/postSlice/postSelector";
 
-export const CreatePost = ({ route }) => {
-  const [positionData, setPositionData] = useState(null);
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getCountryFromCoordinates } from "../../helpers/getCountry";
+
+export const CreatePost = ({ navigation, route }) => {
   const [imageURI, setImageURI] = useState(null);
   const [displayCam, setDisplayCam] = useState(false);
+  const [position, setPosition] = useState("");
 
-  const navigation = useNavigation();
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
 
-  let initialValues = {
-    title: "",
-    location: "",
-  };
+  const dispatch = useDispatch();
+
+  const postState = useSelector(selectPostState);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -33,48 +35,42 @@ export const CreatePost = ({ route }) => {
     }, [displayCam])
   );
 
-  const handleSubmit = async (values, { resetForm }) => {
-    let data = null;
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      console.log(values);
-      data = {
-        ...values,
-        imageURI,
-      };
-      console.log(data);
-      setImageURI(null);
-      resetForm();
-    }
-    if (status === "granted") {
-      let position = await Location.getCurrentPositionAsync({});
-      // const { title, location } = values;
-      const coords = {
-        // country,
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      };
-      data = {
-        ...values,
-        location: coords,
-        imageURI,
-      };
-      console.log(data);
-      setImageURI(null);
-      resetForm();
-    }
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
 
-    navigation.navigate("Posts", { data });
+      if (status === "granted") {
+        const { coords } = await Location.getCurrentPositionAsync({});
+        const { country, region } = await getCountryFromCoordinates(
+          coords.latitude,
+          coords.longitude
+        );
+
+        const posData = {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        };
+        setPosition(posData);
+        // console.log(position);
+        dispatch(addPosition({ position }));
+        setLocation(`${country}, ${region}`);
+      }
+    })();
+  }, [imageURI]);
+
+  const handleFormReset = () => {
+    setImageURI(null);
+    setTitle("");
+    setLocation("");
   };
 
-  // const handleLocationForm = () => {
-  //   navigation.navigate("Map");
-  // };
+  const handleSubmit = async () => {
+    await AsyncStorage.clear();
+    console.log("Storage cleared");
+    dispatch(addPost({ imageURI, location, title }));
+    handleFormReset();
 
-  const handleFormReset = (values) => {
-    setImageURI(null);
-    initialValues.title = "";
-    initialValues.location = "";
+    navigation.navigate("Posts");
   };
 
   return (
@@ -83,63 +79,41 @@ export const CreatePost = ({ route }) => {
         <AddPhoto setDisplayCam={setDisplayCam} setImageURI={setImageURI} />
       ) : (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Formik
-            initialValues={initialValues}
-            onSubmit={handleSubmit}
-            // onReset={handleReset}
-          >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              handleReset,
-            }) => (
-              <FormContainer>
-                <View>
-                  <ImageContainer>
-                    {imageURI && <PostPhoto source={{ uri: imageURI }} />}
-                    <SvgWrapper onPress={() => setDisplayCam(true)}>
-                      <Ionicons name={"camera"} size={24} color="#BDBDBD" />
-                    </SvgWrapper>
-                  </ImageContainer>
-                  <ImageFieldText>Завантажте фото</ImageFieldText>
-                  <TitleInput
-                    placeholder="Назва..."
-                    placeholderTextColor="#BDBDBD"
-                    onChangeText={handleChange("title")}
-                    onBlur={handleBlur("title")}
-                    value={values.title}
-                  />
-                  <LocationWrapper>
-                    <Ionicons
-                      name={"location-outline"}
-                      size={24}
-                      color="#BDBDBD"
-                    />
-                    <LocationInput
-                      placeholder="Місцевість..."
-                      placeholderTextColor="#BDBDBD"
-                      onChangeText={handleChange("location")}
-                      onBlur={handleBlur("location")}
-                      value={positionData}
-                    />
-                  </LocationWrapper>
-                  <SubmitBtn onPress={handleSubmit}>
-                    <SubmitText>Опубліковати</SubmitText>
-                  </SubmitBtn>
-                </View>
+          <FormContainer>
+            <View>
+              <ImageContainer>
+                {imageURI && <PostPhoto source={{ uri: imageURI }} />}
+                <SvgWrapper onPress={() => setDisplayCam(true)}>
+                  <Ionicons name={"camera"} size={24} color="#BDBDBD" />
+                </SvgWrapper>
+              </ImageContainer>
+              <ImageFieldText>Завантажте фото</ImageFieldText>
+              <TitleInput
+                placeholder="Назва..."
+                placeholderTextColor="#BDBDBD"
+                onChangeText={setTitle}
+                // onBlur={handleBlur("title")}
+                value={title}
+              />
+              <LocationWrapper>
+                <Ionicons name={"location-outline"} size={24} color="#BDBDBD" />
+                <LocationInput
+                  placeholder="Місцевість..."
+                  placeholderTextColor="#BDBDBD"
+                  onChangeText={setLocation}
+                  // onBlur={handleBlur("location")}
+                  value={location}
+                />
+              </LocationWrapper>
+              <SubmitBtn onPress={handleSubmit}>
+                <SubmitText>Опубліковати</SubmitText>
+              </SubmitBtn>
+            </View>
 
-                <DeleteButton onPress={handleFormReset}>
-                  <Ionicons
-                    name={"md-trash-outline"}
-                    size={24}
-                    color={"#BDBDBD"}
-                  />
-                </DeleteButton>
-              </FormContainer>
-            )}
-          </Formik>
+            <DeleteButton onPress={handleFormReset}>
+              <Ionicons name={"md-trash-outline"} size={24} color={"#BDBDBD"} />
+            </DeleteButton>
+          </FormContainer>
         </TouchableWithoutFeedback>
       )}
     </>
