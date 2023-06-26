@@ -20,7 +20,7 @@ export const PostOwner = () => {
 };
 
 const UserInfoContainer = styled.View`
-  flex: 1;
+  /* flex: 1; */
 `;
 
 const UserImg = styled(Image)`
@@ -29,8 +29,8 @@ const UserImg = styled(Image)`
 `;
 
 const UserInfoWrapper = styled.View`
-  padding: 0 16px;
-  padding-top: 32px;
+  /* padding: 0 16px;
+  padding-top: 32px; */
   flex-direction: row;
   gap: 8px;
 `;

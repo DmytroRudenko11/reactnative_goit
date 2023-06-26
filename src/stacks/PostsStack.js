@@ -109,6 +109,7 @@ export const PostsStack = () => {
         component={CreatePost}
         options={{
           title: "Створити публікацію",
+          headerShown: false,
           tabBarStyle: { display: "none" },
         }}
       />

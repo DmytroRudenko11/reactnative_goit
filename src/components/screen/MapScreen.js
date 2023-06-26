@@ -5,29 +5,12 @@ import * as Location from "expo-location";
 // import { getCountryFromCoordinates } from "../helpers/getCountry";
 export const MapScreen = ({ navigation, route }) => {
   const [location, setLocation] = useState(null);
-
+  const [position, setPosition] = useState(null);
   let country = "";
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission to access location was denied");
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      // country = getCountryFromCoordinates(
-      //   location.coords.latitude,
-      //   location.coords.longitude
-      // );
-      const coords = {
-        // country,
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      };
-
-      setLocation(coords);
-    })();
+    const { postLocation } = route.params;
+    setLocation(postLocation);
   }, []);
 
   const handlePositionSet = (e) => {
@@ -41,7 +24,7 @@ export const MapScreen = ({ navigation, route }) => {
     };
 
     setLocation(positionData);
-    navigation.navigate("CreatePost", { positionData });
+    navigation.navigate("Map", { postLocation });
   };
 
   return (
@@ -80,7 +63,5 @@ const styles = StyleSheet.create({
   mapStyle: {
     width: Dimensions.get("window").width - 32,
     height: Dimensions.get("window").height - 200,
-    // width: 100%,
-    // height: 80%,
   },
 });

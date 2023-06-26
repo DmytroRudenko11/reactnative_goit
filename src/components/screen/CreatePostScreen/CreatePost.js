@@ -1,16 +1,17 @@
+import React from "react";
 import styled from "styled-components/native";
-import { View, TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Formik } from "formik";
-import * as ImagePicker from "react-native-image-picker";
 import { useEffect, useState } from "react";
 import { TouchableWithoutFeedback } from "react-native";
 import { Keyboard, Image } from "react-native";
-
-import { useNavigation } from "@react-navigation/native";
-import { optimizeCoords } from "../../helpers/optimizeCoords";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+// import { optimizeCoords } from "../../helpers/optimizeCoords";
 
 import { AddPhoto } from "./AddPhoto";
+
+import * as Location from "expo-location";
 
 export const CreatePost = ({ route }) => {
   const [positionData, setPositionData] = useState(null);
@@ -20,32 +21,60 @@ export const CreatePost = ({ route }) => {
   const navigation = useNavigation();
 
   let initialValues = {
-    photo: imageURI,
     title: "",
     location: "",
   };
 
-  useEffect(() => {
-    if (route.params && route.params.positionData) {
-      const newPositionData = route.params.positionData;
-      const chosenPosition = optimizeCoords(newPositionData);
-      setPositionData(chosenPosition);
+  useFocusEffect(
+    React.useCallback(() => {
+      navigation.setOptions({
+        headerShown: !displayCam,
+      });
+    }, [displayCam])
+  );
+
+  const handleSubmit = async (values, { resetForm }) => {
+    let data = null;
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.log(values);
+      data = {
+        ...values,
+        imageURI,
+      };
+      console.log(data);
+      setImageURI(null);
+      resetForm();
     }
-  }, [route.params]);
+    if (status === "granted") {
+      let position = await Location.getCurrentPositionAsync({});
+      // const { title, location } = values;
+      const coords = {
+        // country,
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+      data = {
+        ...values,
+        location: coords,
+        imageURI,
+      };
+      console.log(data);
+      setImageURI(null);
+      resetForm();
+    }
 
-  const handleSubmit = (values, { resetForm }) => {
-    console.log(values);
-    values.photo = null;
-    resetForm();
+    navigation.navigate("Posts", { data });
   };
 
-  const handleLocationForm = () => {
-    navigation.navigate("Map");
-  };
+  // const handleLocationForm = () => {
+  //   navigation.navigate("Map");
+  // };
 
-  const handleReset = (values, { resetForm }) => {
+  const handleFormReset = (values) => {
     setImageURI(null);
-    resetForm();
+    initialValues.title = "";
+    initialValues.location = "";
   };
 
   return (
@@ -54,7 +83,11 @@ export const CreatePost = ({ route }) => {
         <AddPhoto setDisplayCam={setDisplayCam} setImageURI={setImageURI} />
       ) : (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+          <Formik
+            initialValues={initialValues}
+            onSubmit={handleSubmit}
+            // onReset={handleReset}
+          >
             {({
               handleChange,
               handleBlur,
@@ -65,9 +98,7 @@ export const CreatePost = ({ route }) => {
               <FormContainer>
                 <View>
                   <ImageContainer>
-                    {values.photo && (
-                      <PostPhoto source={{ uri: values.photo }} />
-                    )}
+                    {imageURI && <PostPhoto source={{ uri: imageURI }} />}
                     <SvgWrapper onPress={() => setDisplayCam(true)}>
                       <Ionicons name={"camera"} size={24} color="#BDBDBD" />
                     </SvgWrapper>
@@ -85,14 +116,13 @@ export const CreatePost = ({ route }) => {
                       name={"location-outline"}
                       size={24}
                       color="#BDBDBD"
-                      onPress={handleLocationForm}
                     />
                     <LocationInput
                       placeholder="Місцевість..."
                       placeholderTextColor="#BDBDBD"
                       onChangeText={handleChange("location")}
                       onBlur={handleBlur("location")}
-                      value={positionData ? positionData : values.location}
+                      value={positionData}
                     />
                   </LocationWrapper>
                   <SubmitBtn onPress={handleSubmit}>
@@ -100,7 +130,7 @@ export const CreatePost = ({ route }) => {
                   </SubmitBtn>
                 </View>
 
-                <DeleteButton onPress={handleReset}>
+                <DeleteButton onPress={handleFormReset}>
                   <Ionicons
                     name={"md-trash-outline"}
                     size={24}

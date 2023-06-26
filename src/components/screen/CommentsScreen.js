@@ -16,7 +16,7 @@ export const CommentsScreen = ({ route }) => {
   return (
     <CardWrapper>
       <View>
-        <PostImage source={image} />
+        <PostImage source={{ uri: image }} />
         <CommentSection>
           <CommentItem ownText={ownText}>
             <AvatarImage source={avatar} />

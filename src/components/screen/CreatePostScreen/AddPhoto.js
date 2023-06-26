@@ -6,7 +6,7 @@ import { AntDesign } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
 import styled from "styled-components";
 
-export const AddPhoto = ({ setDisplayCam, setImageURI }) => {
+export const AddPhoto = ({ setDisplayCam, setImageURI, navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
 
   const [image, setImage] = useState(null);
@@ -19,13 +19,17 @@ export const AddPhoto = ({ setDisplayCam, setImageURI }) => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
-    // return () => {
-    //   if (cameraRef.current) {
-    //     cameraRef.current.pausePreview();
-    //     cameraRef = null;
-    //   }
-    // };
+    return () => {
+      if (cameraRef.current) {
+        cameraRef.current.pausePreview();
+        cameraRef = null;
+      }
+    };
   }, []);
+
+  const goBack = () => {
+    setDisplayCam(false);
+  };
 
   const saveImage = async () => {
     if (image) {
@@ -45,7 +49,6 @@ export const AddPhoto = ({ setDisplayCam, setImageURI }) => {
       try {
         const photo = await cameraRef.current.takePictureAsync();
         setImage(photo.uri);
-        // setDisplayCam(false);
       } catch (error) {
         console.log(error);
       }
@@ -63,13 +66,23 @@ export const AddPhoto = ({ setDisplayCam, setImageURI }) => {
   return (
     <Container>
       {!image ? (
-        <CameraContainer
-          ref={cameraRef}
-          type={type}
-          focusMode={Camera.Constants.auto}
-        ></CameraContainer>
+        <>
+          <CameraContainer
+            ref={cameraRef}
+            type={type}
+            focusMode={Camera.Constants.auto}
+          ></CameraContainer>
+          <GoBackBtn onPress={goBack}>
+            <Ionicons name={"ios-arrow-back"} size={35} color={"#BDBDBD"} />
+          </GoBackBtn>
+        </>
       ) : (
-        <ImageContainer source={{ uri: image }} />
+        <>
+          <ImageContainer source={{ uri: image }} />
+          <GoBackBtn onPress={goBack}>
+            <Ionicons name={"ios-arrow-back"} size={35} color={"#BDBDBD"} />
+          </GoBackBtn>
+        </>
       )}
       {!image ? (
         <TakeAPhotoBtn onPress={takePicture}>
@@ -96,6 +109,7 @@ const ImageContainer = styled(Image)`
 const Container = styled.View`
   flex: 1;
   justify-content: center;
+  position: relative;
 `;
 
 const CameraContainer = styled(Camera)`
@@ -112,6 +126,19 @@ const TakeAPhotoBtn = styled.TouchableOpacity`
   position: absolute;
   bottom: 30px;
   right: 43%;
+  width: 60px;
+  height: 60px;
+
+  background-color: #fff;
+  border-radius: 60px;
+  justify-content: center;
+  align-items: center;
+`;
+
+const GoBackBtn = styled.TouchableOpacity`
+  position: absolute;
+  top: 30px;
+  left: 30px;
   width: 60px;
   height: 60px;
 
