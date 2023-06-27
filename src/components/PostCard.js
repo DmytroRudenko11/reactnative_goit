@@ -2,42 +2,37 @@ import styled from "styled-components";
 
 import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { Ionicons } from "@expo/vector-icons";
 import CommentSvg from "../assets/svg/CommentSvg";
 import ThumbUpSvg from "../assets/svg/ThumbUpSvg";
-import { useNavigation } from "@react-navigation/native";
+
+import { selectPosition } from "../redux/postSlice/postSelector";
+import { useSelector } from "react-redux";
 
 export const PostCard = ({ location, comments, likes, title, image }) => {
   const [fillCommentSvg, setFillCommentSvg] = useState("transparent");
   const [fillThumbUpSvg, setFillThumbUpSvg] = useState("transparent");
-  const [commentCount, setCommentCount] = useState(comments);
   const [uLike, setULike] = useState(false);
-  const [likesCount, setLikesCount] = useState(likes);
-
+  const position = useSelector(selectPosition);
   const navigation = useNavigation();
 
   const handleCommentsRedirect = (image) => {
     navigation.navigate("Comments", { image });
   };
 
-  const handleMap = (coord) => {
-    console.log(coord);
-    const postLocation = {
-      latitude: coord[0],
-      longitude: coord[1],
-    };
-    navigation.navigate("Map", { postLocation });
+  const handleMap = () => {
+    navigation.navigate("Map", { position });
   };
 
   useEffect(() => {
-    setFillCommentSvg(commentCount > 0 ? "#FF6C00" : "transparent");
+    setFillCommentSvg(comments > 0 ? "#FF6C00" : "transparent");
     setFillThumbUpSvg(uLike ? "#FF6C00" : "transparent");
-  }, [commentCount, uLike]);
+  }, [comments, uLike]);
 
   const handleThumpUp = () => {
     setULike(!uLike);
-    uLike ? setLikesCount(likesCount - 1) : setLikesCount(likesCount + 1);
   };
 
   return (
@@ -51,11 +46,11 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
               fill={fillCommentSvg}
               onPress={() => handleCommentsRedirect(image)}
             />
-            <Text style={{ color: "#212121" }}>{commentCount}</Text>
+            <Text style={{ color: "#212121" }}>{comments}</Text>
           </InfoItemWrapper>
           <InfoItemWrapper>
             <ThumbUpSvg fill={fillThumbUpSvg} onPress={handleThumpUp} />
-            <Text style={{ color: "#212121" }}>{likesCount}</Text>
+            <Text style={{ color: "#212121" }}>{likes}</Text>
           </InfoItemWrapper>
         </InfoWrapper>
         <View>

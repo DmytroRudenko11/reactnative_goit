@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, StyleSheet, Dimensions } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import * as Location from "expo-location";
-// import { getCountryFromCoordinates } from "../helpers/getCountry";
+
 export const MapScreen = ({ navigation, route }) => {
   const [location, setLocation] = useState(null);
-  const [position, setPosition] = useState(null);
-  let country = "";
 
   useEffect(() => {
-    const { postLocation } = route.params;
-    setLocation(postLocation);
+    const { position } = route.params;
+    setLocation(position);
   }, []);
 
   const handlePositionSet = (e) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
 
-    // country = getCountryFromCoordinates(latitude, longitude);
     const positionData = {
-      // country,
       latitude,
       longitude,
     };
