@@ -11,10 +11,28 @@ import AuthContainer from "../../AuthContainer";
 import AddSvg from "../../../assets/svg/AddSvg";
 import { SignUpFormFields } from "./SignUpForm";
 
+import * as ImagePicker from "expo-image-picker";
+
 export const RegistrationScreen = () => {
   const navigation = useNavigation();
   const handleNavigation = () => {
     navigation.navigate("SignIn");
+  };
+
+  const handleChooseAvatar = async () => {
+    const options = {
+      mediaType: "photo",
+    };
+
+    await ImagePicker.launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log("Canceled");
+      } else if (response.error) {
+        console.log("Image picking error:", response.error);
+      } else if (response.uri) {
+        console.log("Your avatar:", response.uri);
+      }
+    });
   };
 
   return (
@@ -23,7 +41,9 @@ export const RegistrationScreen = () => {
         <AuthWrapper>
           <AvatarBox>
             <Avatar>
-              <AddCross />
+              <AddAvatarBtn onPress={handleChooseAvatar}>
+                <AddCross />
+              </AddAvatarBtn>
             </Avatar>
           </AvatarBox>
           <Title>Реєстрація</Title>
@@ -68,7 +88,7 @@ const Avatar = styled.View`
   height: 120px;
 `;
 
-const AddCross = styled(AddSvg)`
+const AddAvatarBtn = styled.TouchableOpacity`
   position: absolute;
   transform: translateX(13px);
   right: 0px;
@@ -76,6 +96,8 @@ const AddCross = styled(AddSvg)`
   width: 25px;
   height: 25px;
 `;
+
+const AddCross = styled(AddSvg)``;
 
 const Title = styled.Text`
   font-family: Roboto;

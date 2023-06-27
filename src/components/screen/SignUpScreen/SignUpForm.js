@@ -3,13 +3,24 @@ import { useEffect, useState } from "react";
 import { KeyboardAvoidingView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
+
 import styled from "styled-components/native";
+
+import { auth } from "../../../../config";
+
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  updateProfile,
+} from "firebase/auth";
 
 export const SignUpFormFields = () => {
   const [showPassword, setShowPassword] = useState(true);
   const [textToDisplay, setTextToDisplay] = useState("Показати");
 
   const navigation = useNavigation();
+
+ 
 
   useEffect(() => {
     setTextToDisplay(showPassword ? "Показати" : "Приховати");
@@ -19,16 +30,31 @@ export const SignUpFormFields = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleFormSubmit = (values, { resetForm }) => {
+  const handleSignUp = (values, { resetForm }) => {
+    const { login, email, password } = values;
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userData) => {
+        const user = userData.user;
+        updateProfile(user, { displayName: login })
+          .then(() => {
+            console.log("You signed up");
+            console.log("Hello,", user.displayName);
+          })
+          .catch((error) => {
+            console.error("Sorry, error ocured. Message:", error);
+          });
+      })
+      .catch((e) => alert(e.message));
+
     console.log(values);
     navigation.navigate("Home");
     resetForm();
   };
-
   const initialValues = { photo: null, login: "", email: "", password: "" };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleFormSubmit}>
+    <Formik initialValues={initialValues} onSubmit={handleSignUp}>
       {({ handleChange, handleSubmit, values }) => (
         <SignUpForm>
           <KeyboardAvoidingView

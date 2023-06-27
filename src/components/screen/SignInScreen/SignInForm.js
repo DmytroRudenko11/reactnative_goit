@@ -5,6 +5,9 @@ import { useNavigation } from "@react-navigation/native";
 
 import styled from "styled-components/native";
 
+import { auth } from "../../../../config";
+import { signInWithEmailAndPassword } from "@firebase/auth";
+
 export const SignInFormFields = () => {
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(true);
@@ -14,20 +17,38 @@ export const SignInFormFields = () => {
     setTextToDisplay(showPassword ? "Показати" : "Приховати");
   }, [textToDisplay, showPassword]);
 
-  const handleTogglePassword = (e) => {
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.navigate("Home");
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleFormSubmit = (values, { resetForm }) => {
+  const handleSignIn = async (values, { resetForm }) => {
+    const { email, password } = values;
+    try {
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
+      const { displayName, email, accessToken, uid, photoURL } = user;
+      console.log("hello?", user);
+    } catch (error) {
+      console.error("Sorry, error ocured. Message:", error);
+    }
+
     console.log(values);
-    navigation.navigate("Home");
+
     resetForm();
   };
 
   const initialValues = { email: "", password: "" };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleFormSubmit}>
+    <Formik initialValues={initialValues} onSubmit={handleSignIn}>
       {({ handleChange, handleSubmit, values }) => (
         <SignInForm>
           <KeyboardAvoidingView

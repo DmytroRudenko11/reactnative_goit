@@ -37,30 +37,34 @@ export const CreatePost = ({ navigation, route }) => {
   );
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+    if (!imageURI) {
+      (async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
 
-      if (status === "granted") {
-        const { coords } = await Location.getCurrentPositionAsync({});
-        const { country, region } = await getCountryFromCoordinates(
-          coords.latitude,
-          coords.longitude
-        );
+        if (status === "granted") {
+          const { coords } = await Location.getCurrentPositionAsync({});
+          const { country, region } = await getCountryFromCoordinates(
+            coords.latitude,
+            coords.longitude
+          );
 
-        const posData = {
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        };
-        setPosition(posData);
-        dispatch(addPosition(position));
-        setLocation(`${country}, ${region}`);
-      }
-    })();
+          const posData = {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+          };
+          setPosition(posData);
+          dispatch(addPosition(position));
+          setLocation(`${country}, ${region}`);
+        }
+      })();
+    }
   }, [imageURI]);
 
   useEffect(() => {
     if (title && imageURI) {
       setDisableSbm(false);
+    } else {
+      setDisableSbm(true);
     }
   }, [title, imageURI]);
 
