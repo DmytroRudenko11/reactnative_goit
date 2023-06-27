@@ -30,7 +30,6 @@ export const postSlice = createSlice({
       state.postContent.location = action.payload.location;
     },
     addPosition(state, action) {
-      // console.log(action.payload.position);
       state.postContent.position.latitude = action.payload.latitude;
       state.postContent.position.longitude = action.payload.longitude;
     },

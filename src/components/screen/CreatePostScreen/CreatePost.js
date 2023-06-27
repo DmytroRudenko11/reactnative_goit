@@ -16,6 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCountryFromCoordinates } from "../../helpers/getCountry";
 
 export const CreatePost = ({ navigation, route }) => {
+  const [disableSbm, setDisableSbm] = useState(true);
   const [imageURI, setImageURI] = useState(null);
   const [displayCam, setDisplayCam] = useState(false);
   const [position, setPosition] = useState("");
@@ -51,12 +52,17 @@ export const CreatePost = ({ navigation, route }) => {
           longitude: coords.longitude,
         };
         setPosition(posData);
-        // console.log(position);
-        dispatch(addPosition({ position }));
+        dispatch(addPosition(position));
         setLocation(`${country}, ${region}`);
       }
     })();
   }, [imageURI]);
+
+  useEffect(() => {
+    if (title && imageURI) {
+      setDisableSbm(false);
+    }
+  }, [title, imageURI]);
 
   const handleFormReset = () => {
     setImageURI(null);
@@ -67,6 +73,7 @@ export const CreatePost = ({ navigation, route }) => {
   const handleSubmit = async () => {
     await AsyncStorage.clear();
     console.log("Storage cleared");
+
     dispatch(addPost({ imageURI, location, title }));
     handleFormReset();
 
@@ -92,7 +99,6 @@ export const CreatePost = ({ navigation, route }) => {
                 placeholder="Назва..."
                 placeholderTextColor="#BDBDBD"
                 onChangeText={setTitle}
-                // onBlur={handleBlur("title")}
                 value={title}
               />
               <LocationWrapper>
@@ -101,12 +107,11 @@ export const CreatePost = ({ navigation, route }) => {
                   placeholder="Місцевість..."
                   placeholderTextColor="#BDBDBD"
                   onChangeText={setLocation}
-                  // onBlur={handleBlur("location")}
                   value={location}
                 />
               </LocationWrapper>
-              <SubmitBtn onPress={handleSubmit}>
-                <SubmitText>Опубліковати</SubmitText>
+              <SubmitBtn onPress={handleSubmit} disabled={disableSbm}>
+                <SubmitText disabled={disableSbm}>Опубліковати</SubmitText>
               </SubmitBtn>
             </View>
 
@@ -186,9 +191,8 @@ const LocationInput = styled.TextInput`
 `;
 
 const SubmitBtn = styled.TouchableOpacity`
-  /* background-color: ${(props) =>
-    props.disabled ? "#F6F6F6" : "#ff6c00"}; */
-  background-color: #ff6c00;
+  background-color: ${(props) => (props.disabled ? "#F6F6F6" : "#ff6c00")};
+  /* background-color: #ff6c00; */
   margin-top: 20px;
   padding: 15px 0;
   width: 100%;
@@ -198,8 +202,8 @@ const SubmitBtn = styled.TouchableOpacity`
 const SubmitText = styled.Text`
   text-align: center;
 
-  /* color: ${(props) => (props.disabled ? "#BDBDBD" : "#FFFFFF")}; */
-  color: white;
+  color: ${(props) => (props.disabled ? "#BDBDBD" : "#FFFFFF")};
+  /* color: white; */
 `;
 
 const DeleteButton = styled.TouchableOpacity`

@@ -2,33 +2,28 @@ import styled from "styled-components";
 
 import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { Ionicons } from "@expo/vector-icons";
 import CommentSvg from "../assets/svg/CommentSvg";
 import ThumbUpSvg from "../assets/svg/ThumbUpSvg";
-import { useNavigation } from "@react-navigation/native";
-import { selectPostState } from "../redux/postSlice/postSelector";
+
+import { selectPosition } from "../redux/postSlice/postSelector";
 import { useSelector } from "react-redux";
 
 export const PostCard = ({ location, comments, likes, title, image }) => {
   const [fillCommentSvg, setFillCommentSvg] = useState("transparent");
   const [fillThumbUpSvg, setFillThumbUpSvg] = useState("transparent");
   const [uLike, setULike] = useState(false);
-  const position = useSelector(selectPostState);
+  const position = useSelector(selectPosition);
   const navigation = useNavigation();
 
   const handleCommentsRedirect = (image) => {
     navigation.navigate("Comments", { image });
   };
-  console.log("FOR POSITION", position);
 
-  const handleMap = (coord) => {
-    console.log(coord);
-    const postLocation = {
-      latitude: coord[0],
-      longitude: coord[1],
-    };
-    navigation.navigate("Map", { postLocation });
+  const handleMap = () => {
+    navigation.navigate("Map", { position });
   };
 
   useEffect(() => {
@@ -38,7 +33,6 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
 
   const handleThumpUp = () => {
     setULike(!uLike);
-    // uLike ? setLikesCount(likesCount - 1) : setLikesCount(likes + 1);
   };
 
   return (

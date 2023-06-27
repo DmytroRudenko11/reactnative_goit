@@ -4,11 +4,9 @@ import styled from "styled-components/native";
 import { PostOwner } from "../PostOwner";
 import { PostCard } from "../PostCard";
 import { selectPostState } from "../../redux/postSlice/postSelector";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 export const PostsScreen = ({ route }) => {
-  // const dispatch = useDispatch();
-
   const {
     postContent: { title, imageURI, location },
     likes,

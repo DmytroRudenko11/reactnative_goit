@@ -19,7 +19,7 @@ export default function App() {
       <PersistGate loading={null} persistor={persistor}>
         <NavigationContainer>
           <StatusBar backgroundColor="transparent" barStyle="dark-content" />
-          <MainStack.Navigator initialRouteName="Home">
+          <MainStack.Navigator initialRouteName="SignUp">
             <MainStack.Screen
               name="SignUp"
               component={RegistrationScreen}
