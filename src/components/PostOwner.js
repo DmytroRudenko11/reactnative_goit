@@ -1,36 +1,36 @@
-import React from "react";
-
 import styled from "styled-components/native";
-
-import UserImage from "../assets/images/user.jpg";
 import { Image } from "react-native";
 
-export const PostOwner = () => {
+export const PostOwner = ({ avatar, name, email }) => {
   return (
-    <UserInfoContainer>
-      <UserInfoWrapper>
-        <UserImg source={UserImage} />
-        <UserInfo>
-          <UserName>Natali Romanova</UserName>
-          <UserEmail>email@example.com</UserEmail>
-        </UserInfo>
-      </UserInfoWrapper>
-    </UserInfoContainer>
+    <>
+      {avatar && (
+        <UserInfoContainer>
+          <UserInfoWrapper>
+            <UserImg source={{ uri: avatar }} />
+            <UserInfo>
+              <UserName>{name}</UserName>
+              <UserEmail>{email}</UserEmail>
+            </UserInfo>
+          </UserInfoWrapper>
+        </UserInfoContainer>
+      )}
+    </>
   );
 };
 
 const UserInfoContainer = styled.View`
+  margin-bottom: 10px;
   /* flex: 1; */
 `;
 
 const UserImg = styled(Image)`
   width: 60px;
   height: 60px;
+  border-radius: 16px;
 `;
 
 const UserInfoWrapper = styled.View`
-  /* padding: 0 16px;
-  padding-top: 32px; */
   flex-direction: row;
   gap: 8px;
 `;

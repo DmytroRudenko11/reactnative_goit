@@ -8,12 +8,16 @@ import * as Location from "expo-location";
 
 import { AddPhoto } from "./AddPhoto";
 
-import { addPost, addPosition } from "../../../redux/postSlice/postSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { selectPostState } from "../../../redux/postSlice/postSelector";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCountryFromCoordinates } from "../../helpers/getCountry";
+
+import { selectUserData } from "../../../redux/authSlice/authSelector";
+
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../../../config";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const CreatePost = ({ navigation, route }) => {
   const [disableSbm, setDisableSbm] = useState(true);
@@ -24,9 +28,13 @@ export const CreatePost = ({ navigation, route }) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
 
-  const dispatch = useDispatch();
+  const userData = useSelector(selectUserData);
 
-  const postState = useSelector(selectPostState);
+  // useEffect(() => {
+  //   // const storage = logCurrentStorage();
+  //   console.log("state", userData);
+  //   // console.log(storage);
+  // }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -37,6 +45,7 @@ export const CreatePost = ({ navigation, route }) => {
   );
 
   useEffect(() => {
+    // if (!imageURI) {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
 
@@ -46,38 +55,69 @@ export const CreatePost = ({ navigation, route }) => {
           coords.latitude,
           coords.longitude
         );
-
         const posData = {
           latitude: coords.latitude,
           longitude: coords.longitude,
         };
         setPosition(posData);
-        dispatch(addPosition(position));
         setLocation(`${country}, ${region}`);
       }
     })();
+    // }
   }, [imageURI]);
 
   useEffect(() => {
     if (title && imageURI) {
       setDisableSbm(false);
+    } else {
+      setDisableSbm(true);
     }
   }, [title, imageURI]);
 
   const handleFormReset = () => {
+    // clearAsyncStorage = async () => {
+    //   AsyncStorage.clear();
+    // };
     setImageURI(null);
     setTitle("");
+    setPosition("");
     setLocation("");
   };
 
   const handleSubmit = async () => {
-    await AsyncStorage.clear();
-    console.log("Storage cleared");
+    try {
+      const storage = getStorage();
+      const storageRef = ref(storage, `postPhoto/${Date.now()}`);
+      const response = await fetch(imageURI);
+      const blob = await response.blob();
+      await uploadBytes(storageRef, blob);
+      const imageURL = await getDownloadURL(storageRef);
 
-    dispatch(addPost({ imageURI, location, title }));
+      const docRef = await addDoc(collection(db, "posts"), {
+        postOwner: { ...userData },
+        imageURL,
+        location,
+        title,
+        position: {
+          latitude: position.latitude,
+          longitude: position.longitude,
+        },
+        likes: 0,
+        comments: {
+          count: 0,
+          content: [],
+        },
+        createdAt: Date.now(),
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      throw e;
+    }
+
     handleFormReset();
 
-    navigation.navigate("Posts");
+    navigation.navigate("Posts", { refresh: true });
   };
 
   return (
@@ -192,7 +232,6 @@ const LocationInput = styled.TextInput`
 
 const SubmitBtn = styled.TouchableOpacity`
   background-color: ${(props) => (props.disabled ? "#F6F6F6" : "#ff6c00")};
-  /* background-color: #ff6c00; */
   margin-top: 20px;
   padding: 15px 0;
   width: 100%;
@@ -201,9 +240,7 @@ const SubmitBtn = styled.TouchableOpacity`
 
 const SubmitText = styled.Text`
   text-align: center;
-
   color: ${(props) => (props.disabled ? "#BDBDBD" : "#FFFFFF")};
-  /* color: white; */
 `;
 
 const DeleteButton = styled.TouchableOpacity`

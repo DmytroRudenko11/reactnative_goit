@@ -8,18 +8,23 @@ import { Ionicons } from "@expo/vector-icons";
 import CommentSvg from "../assets/svg/CommentSvg";
 import ThumbUpSvg from "../assets/svg/ThumbUpSvg";
 
-import { selectPosition } from "../redux/postSlice/postSelector";
-import { useSelector } from "react-redux";
-
-export const PostCard = ({ location, comments, likes, title, image }) => {
+export const PostCard = ({
+  location,
+  comments,
+  likes,
+  title,
+  image,
+  id,
+  position,
+}) => {
   const [fillCommentSvg, setFillCommentSvg] = useState("transparent");
   const [fillThumbUpSvg, setFillThumbUpSvg] = useState("transparent");
   const [uLike, setULike] = useState(false);
-  const position = useSelector(selectPosition);
   const navigation = useNavigation();
+  console.log(position);
 
-  const handleCommentsRedirect = (image) => {
-    navigation.navigate("Comments", { image });
+  const handleCommentsRedirect = (id) => {
+    navigation.navigate("Comments", { id });
   };
 
   const handleMap = () => {
@@ -44,7 +49,7 @@ export const PostCard = ({ location, comments, likes, title, image }) => {
           <InfoItemWrapper>
             <CommentSvg
               fill={fillCommentSvg}
-              onPress={() => handleCommentsRedirect(image)}
+              onPress={() => handleCommentsRedirect(id)}
             />
             <Text style={{ color: "#212121" }}>{comments}</Text>
           </InfoItemWrapper>
@@ -70,6 +75,7 @@ const CardWrapper = styled.View`
   width: 100%;
   border-radius: 8px;
   gap: 8px;
+  margin-bottom: 10px;
 `;
 
 const PostImage = styled.Image`

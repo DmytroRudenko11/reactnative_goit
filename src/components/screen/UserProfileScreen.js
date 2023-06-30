@@ -1,46 +1,62 @@
 import styled from "styled-components";
 import AuthContainer from "../AuthContainer";
-import { Ionicons } from "@expo/vector-icons";
+
 import { PostCard } from "../PostCard";
 import LogoutSVG from "../../assets/svg/LogoutSvg";
+
 import { useSelector } from "react-redux";
 import { selectPostState } from "../../redux/postSlice/postSelector";
+import { selectUserData } from "../../redux/authSlice/authSelector";
+
+import { Image } from "react-native";
+import { signOut } from "firebase/auth";
 
 export const UserProfileScreen = () => {
-  const {
-    postContent: { title, imageURI, location },
-    likes,
-    comments: { count },
-  } = useSelector(selectPostState);
-  // console.log(location.split(",")[0]);
+  const posts = useSelector(selectPostState);
+  const userData = useSelector(selectUserData);
+
+  const ownPosts = posts.filter((post) => post.postOwner.uid === userData.uid);
+
+  const handleLogOut = async () => {
+    await signOut(auth);
+    console.log("LoggedOut");
+    navigation.navigate("SignIn");
+  };
 
   return (
     <AuthContainer>
       <ProfileWrapper>
         <AvatarBox>
-          <Avatar>
-            <DeleteCross
-              name={"close-circle-outline"}
-              size={25}
-              color={"#BDBDBD"}
-            />
-          </Avatar>
+          {userData.photoURL && <Avatar source={{ uri: userData.photoURL }} />}
         </AvatarBox>
-        <UserName>Natali Romanova</UserName>
-        <PostCard
-          location={location}
-          comments={count}
-          likes={likes}
-          title={title}
-          image={imageURI}
-        />
-        <LogoutButton onPress={() => alert("Sure?")}>
+        <UserName>{userData.displayName}</UserName>
+        <ScrollWrap>
+          {ownPosts.length > 0 &&
+            ownPosts.map((post) => {
+              return (
+                <PostCard
+                  key={post.id}
+                  location={post.location}
+                  comments={post.comments.count}
+                  likes={post.likes}
+                  title={post.title}
+                  image={post.imageURL}
+                  styles={{ marginBottom: 15 }}
+                />
+              );
+            })}
+        </ScrollWrap>
+        <LogoutButton onPress={handleLogOut}>
           <LogoutSVG />
         </LogoutButton>
       </ProfileWrapper>
     </AuthContainer>
   );
 };
+
+const ScrollWrap = styled.ScrollView`
+  width: 100%;
+`;
 
 const ProfileWrapper = styled.View`
   align-items: center;
@@ -56,27 +72,18 @@ const ProfileWrapper = styled.View`
 `;
 
 const AvatarBox = styled.View`
+  position: relative;
   margin-top: -60px;
   width: 132px;
   height: 120px;
   margin-bottom: 32px;
 `;
 
-const Avatar = styled.View`
-  position: relative;
+const Avatar = styled(Image)`
   background-color: #f6f6f6;
   border-radius: 16px;
   width: 120px;
   height: 120px;
-`;
-
-const DeleteCross = styled(Ionicons)`
-  position: absolute;
-  transform: translateX(13px);
-  right: 0px;
-  bottom: 14px;
-  background-color: white;
-  border-radius: 25px;
 `;
 
 const UserName = styled.Text`

@@ -7,12 +7,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { CreatePost } from "../components/screen/CreatePostScreen/CreatePost";
 import { UserProfileScreen } from "../components/screen/UserProfileScreen";
 import { PostsScreen } from "../components/screen/PostsScreen";
-// import { Posts } from "../components/PostsComponents/Posts";
 import LogoutSVG from "../assets/svg/LogoutSvg";
 
+import { signOut } from "firebase/auth";
+import { auth } from "../../config";
 const Tab = createBottomTabNavigator();
 
-export const PostsStack = () => {
+export const PostsStack = ({ navigation }) => {
+  const handleLogOut = async () => {
+    await signOut(auth);
+    console.log("LoggedOut");
+    navigation.navigate("SignIn");
+  };
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => ({
@@ -34,7 +40,7 @@ export const PostsStack = () => {
         headerRight: () => {
           if (route.name === "Posts") {
             return (
-              <LogoutButton onPress={() => alert("This is a button!")}>
+              <LogoutButton onPress={handleLogOut}>
                 <LogoutSVG />
               </LogoutButton>
             );
@@ -98,7 +104,7 @@ export const PostsStack = () => {
         component={PostsScreen}
         options={{
           headerRight: () => (
-            <LogoutButton onPress={() => alert("Sure?")}>
+            <LogoutButton onPress={handleLogOut}>
               <LogoutSVG />
             </LogoutButton>
           ),
