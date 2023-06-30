@@ -1,31 +1,91 @@
-import { Image, View } from "react-native";
+import { View } from "react-native";
 import { Formik } from "formik";
 import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components";
 // import image from "../../assets/images/PostPhoto.jpg";
-import avatar from "../../assets/images/user.jpg";
+// import avatar from "../../assets/images/user.jpg";
+import { doc, updateDoc, getDoc, arrayUnion } from "firebase/firestore";
+import { db } from "../../../config.js";
+import { selectPostState } from "../../redux/postSlice/postSelector";
+import { selectUserData } from "../../redux/authSlice/authSelector";
+import { useDispatch, useSelector } from "react-redux";
+import { CommentCard } from "../CommentCard";
+import { useEffect, useState } from "react";
+
+import { collection, getDocs } from "firebase/firestore";
+import { addPost } from "../../redux/postSlice/postSlice.js";
 
 export const CommentsScreen = ({ route }) => {
-  const { image } = route.params;
+  const [toogle, setToogle] = useState(false);
+  const dispatch = useDispatch();
   const ownText = true;
-  const handleSubmit = (values, { resetForm }) => {
-    console.log(values);
+  const { id: postId } = route.params;
+
+  useEffect(() => {
+    // const storage = logCurrentStorage();
+    // console.log(storage);
+    const getDataFromFirestore = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "posts"));
+        const result = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        dispatch(addPost(result));
+        return;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    };
+    getDataFromFirestore();
+  }, [toogle]);
+
+  const posts = useSelector(selectPostState);
+  const { imageURL, comments } = posts.find((post) => post.id === postId) || {};
+  const { uid, photoURL } = useSelector(selectUserData);
+
+  const handleSubmit = async (values, { resetForm }) => {
+    const postDocRef = doc(db, "posts", postId);
+    const postDocSnapshot = await getDoc(postDocRef);
+    const postDoc = postDocSnapshot.data();
+    const comments = postDoc.comments;
+
+    const newComment = {
+      author: {
+        uid: uid,
+        photoURL: photoURL,
+      },
+      text: values.comment,
+      date: new Date().toISOString(),
+    };
+
+    comments.content = arrayUnion(newComment, ...comments.content);
+
+    comments.count += 1;
+
+    await updateDoc(postDocRef, { comments: comments });
+    setToogle(!toogle);
     resetForm();
   };
 
   return (
     <CardWrapper>
       <View>
-        <PostImage source={{ uri: image }} />
-        <CommentSection>
-          <CommentItem ownText={ownText}>
-            <AvatarImage source={avatar} />
-            <CommentTextWrapper>
-              <CommentText>CommentText</CommentText>
-              <DateText ownText={ownText}>09 червня, 2020 | 08:40</DateText>
-            </CommentTextWrapper>
-          </CommentItem>
-        </CommentSection>
+        <PostImage source={{ uri: imageURL }} />
+        <ScrollContainer>
+          {comments.content &&
+            comments.content.map((comment) => (
+              <CommentCard
+                key={comment.date}
+                avatar={comment.author.photoURL}
+                text={comment.text}
+                date={comment.date}
+                ownId={uid}
+                authorId={comment.author.uid}
+              />
+            ))}
+        </ScrollContainer>
       </View>
       <Formik initialValues={{ comment: "" }} onSubmit={handleSubmit}>
         {({ handleChange, handleSubmit, values }) => (
@@ -47,6 +107,10 @@ export const CommentsScreen = ({ route }) => {
   );
 };
 
+const ScrollContainer = styled.ScrollView`
+  height: 350px;
+`;
+
 const CardWrapper = styled.View`
   padding: 32px 16px;
   height: 100%;
@@ -58,53 +122,13 @@ const CardWrapper = styled.View`
 
 const PostImage = styled.Image`
   border-radius: 8px;
+  margin-bottom: 32px;
   width: 100%;
   height: 240px;
 `;
 
-const AvatarImage = styled(Image)`
-  border-radius: 28px;
-  width: 28px;
-  height: 28px;
-`;
-
-const CommentSection = styled.View`
-  margin-top: 32px;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const CommentItem = styled.View`
-  width: 100%;
-  flex-direction: ${(props) => (props.ownText ? "row-reverse" : "row")};
-
-  gap: 12px;
-`;
-
-const CommentTextWrapper = styled.View`
-  flex: 1;
-  border-radius: 8px;
-  width: 100%;
-  background-color: #f7f7f7;
-  padding: 16px;
-`;
-
-const CommentText = styled.Text`
-  font-weight: 400;
-  font-size: 13px;
-
-  color: #212121;
-`;
-
-const DateText = styled.Text`
-  margin-top: 8px;
-  font-size: 10px;
-  text-align: ${(props) => (props.ownText ? "left" : "right")};
-
-  color: #bdbdbd;
-`;
-
 const FormSection = styled.View`
+  /* margin-top: 10px; */
   width: 100%;
   height: 50px;
   background-color: #f6f6f6;

@@ -16,6 +16,7 @@ const Tab = createBottomTabNavigator();
 export const PostsStack = ({ navigation }) => {
   const handleLogOut = async () => {
     await signOut(auth);
+    console.log("LoggedOut");
     navigation.navigate("SignIn");
   };
   return (

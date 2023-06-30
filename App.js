@@ -16,28 +16,28 @@ const MainStack = createStackNavigator();
 export default function App() {
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <NavigationContainer>
-          <StatusBar backgroundColor="transparent" barStyle="dark-content" />
-          <MainStack.Navigator initialRouteName="SignUp">
-            <MainStack.Screen
-              name="SignUp"
-              component={RegistrationScreen}
-              options={{ headerShown: false }}
-            />
-            <MainStack.Screen
-              name="SignIn"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <MainStack.Screen
-              name="Home"
-              component={HomeStack}
-              options={{ headerShown: false }}
-            />
-          </MainStack.Navigator>
-        </NavigationContainer>
-      </PersistGate>
+      {/* <PersistGate loading={null} persistor={persistor}> */}
+      <NavigationContainer>
+        <StatusBar backgroundColor="transparent" barStyle="dark-content" />
+        <MainStack.Navigator initialRouteName="SignUp">
+          <MainStack.Screen
+            name="SignUp"
+            component={RegistrationScreen}
+            options={{ headerShown: false }}
+          />
+          <MainStack.Screen
+            name="SignIn"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <MainStack.Screen
+            name="Home"
+            component={HomeStack}
+            options={{ headerShown: false }}
+          />
+        </MainStack.Navigator>
+      </NavigationContainer>
+      {/* </PersistGate> */}
     </Provider>
   );
 }

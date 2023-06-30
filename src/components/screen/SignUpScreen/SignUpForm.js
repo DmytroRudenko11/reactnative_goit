@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { KeyboardAvoidingView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-
 import styled from "styled-components/native";
 
 import { auth } from "../../../../config";
@@ -14,13 +13,24 @@ import {
   updateProfile,
 } from "firebase/auth";
 
-export const SignUpFormFields = () => {
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useDispatch } from "react-redux";
+import { getUser } from "../../../redux/authSlice/authSlice";
+
+export const SignUpFormFields = ({ avatar, setAvatar }) => {
   const [showPassword, setShowPassword] = useState(true);
   const [textToDisplay, setTextToDisplay] = useState("Показати");
-
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
- 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.navigate("Home");
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     setTextToDisplay(showPassword ? "Показати" : "Приховати");
@@ -30,28 +40,52 @@ export const SignUpFormFields = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignUp = (values, { resetForm }) => {
+  const handleSignUp = async (values, { resetForm }) => {
     const { login, email, password } = values;
+    let userProfile = {};
+    try {
+      const userData = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userData.user;
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userData) => {
-        const user = userData.user;
-        updateProfile(user, { displayName: login })
-          .then(() => {
-            console.log("You signed up");
-            console.log("Hello,", user.displayName);
-          })
-          .catch((error) => {
-            console.error("Sorry, error ocured. Message:", error);
-          });
-      })
-      .catch((e) => alert(e.message));
+      if (avatar) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `avatars/${user.uid}`);
+        const response = await fetch(avatar);
+        const blob = await response.blob();
+        await uploadBytes(storageRef, blob);
+        const avatarURL = await getDownloadURL(storageRef);
 
-    console.log(values);
-    navigation.navigate("Home");
-    resetForm();
+        await updateProfile(user, {
+          displayName: login,
+          photoURL: avatarURL,
+        });
+      } else {
+        return alert("Add photo!");
+      }
+      userProfile = {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+      };
+
+      dispatch(getUser(userProfile));
+      console.log("Hello,", user.displayName);
+
+      setAvatar(null);
+      resetForm();
+    } catch (error) {
+      console.error("Sorry, error occurred. Message:", error);
+      console.error("Error details:", error.serverResponse);
+      alert(error.message);
+    }
   };
-  const initialValues = { photo: null, login: "", email: "", password: "" };
+
+  const initialValues = { login: "", email: "", password: "" };
 
   return (
     <Formik initialValues={initialValues} onSubmit={handleSignUp}>

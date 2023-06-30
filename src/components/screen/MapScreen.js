@@ -1,35 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
-export const MapScreen = ({ navigation, route }) => {
-  const [location, setLocation] = useState(null);
-
-  useEffect(() => {
-    const { position } = route.params;
-    setLocation(position);
-  }, []);
-
-  const handlePositionSet = (e) => {
-    const { latitude, longitude } = e.nativeEvent.coordinate;
-
-    const positionData = {
-      latitude,
-      longitude,
-    };
-
-    setLocation(positionData);
-    navigation.navigate("Map", { postLocation });
-  };
+export const MapScreen = ({ route }) => {
+  const { position } = route.params;
 
   return (
     <View style={styles.container}>
       <MapView
-        onPress={handlePositionSet}
         style={styles.mapStyle}
         region={{
-          latitude: location ? location.latitude : 50.436014498201764,
-          longitude: location ? location.longitude : 30.55718373244726,
+          latitude: position ? position.latitude : 50.436014498201764,
+          longitude: position ? position.longitude : 30.55718373244726,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
@@ -40,8 +22,8 @@ export const MapScreen = ({ navigation, route }) => {
         maxZoomLevel={18}
         onMapReady={() => console.log("Map is ready")}
       >
-        {location && (
-          <Marker title="I am here" coordinate={location} description="Hello" />
+        {position && (
+          <Marker title="I am here" coordinate={position} description="Hello" />
         )}
       </MapView>
     </View>

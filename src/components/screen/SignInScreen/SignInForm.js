@@ -4,11 +4,15 @@ import { KeyboardAvoidingView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import styled from "styled-components/native";
+import { useDispatch } from "react-redux";
 
 import { auth } from "../../../../config";
 import { signInWithEmailAndPassword } from "@firebase/auth";
 
+import { getUser } from "../../../redux/authSlice/authSlice";
+
 export const SignInFormFields = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(true);
   const [textToDisplay, setTextToDisplay] = useState("Показати");
@@ -32,17 +36,24 @@ export const SignInFormFields = () => {
 
   const handleSignIn = async (values, { resetForm }) => {
     const { email, password } = values;
+    let userData = {};
     try {
       const { user } = await signInWithEmailAndPassword(auth, email, password);
-      const { displayName, email, accessToken, uid, photoURL } = user;
-      console.log("hello?", user);
+      userData = {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        // accessToken: user.accessToken,
+        photoURL: user.photoURL,
+      };
+
+      console.log("hello,", user.displayName);
     } catch (error) {
       console.error("Sorry, error ocured. Message:", error);
     }
 
-    console.log(values);
-
-    resetForm();
+    dispatch(getUser(userData));
+    // resetForm();
   };
 
   const initialValues = { email: "", password: "" };

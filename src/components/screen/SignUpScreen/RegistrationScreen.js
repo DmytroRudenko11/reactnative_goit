@@ -4,6 +4,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -12,27 +13,29 @@ import AddSvg from "../../../assets/svg/AddSvg";
 import { SignUpFormFields } from "./SignUpForm";
 
 import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
 
 export const RegistrationScreen = () => {
   const navigation = useNavigation();
+  const [avatar, setAvatar] = useState(null);
+
   const handleNavigation = () => {
     navigation.navigate("SignIn");
   };
 
   const handleChooseAvatar = async () => {
-    const options = {
-      mediaType: "photo",
-    };
+    const galleryStatus = await ImagePicker.getMediaLibraryPermissionsAsync();
 
-    await ImagePicker.launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log("Canceled");
-      } else if (response.error) {
-        console.log("Image picking error:", response.error);
-      } else if (response.uri) {
-        console.log("Your avatar:", response.uri);
+    if (galleryStatus.granted === true) {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaType: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.5,
+      });
+
+      if (!result.canceled) {
+        setAvatar(result.assets[0].uri);
       }
-    });
+    }
   };
 
   return (
@@ -40,14 +43,17 @@ export const RegistrationScreen = () => {
       <AuthContainer>
         <AuthWrapper>
           <AvatarBox>
-            <Avatar>
-              <AddAvatarBtn onPress={handleChooseAvatar}>
-                <AddCross />
-              </AddAvatarBtn>
-            </Avatar>
+            {avatar ? (
+              <Avatar source={{ uri: avatar }}></Avatar>
+            ) : (
+              <AvatarPlaceholder />
+            )}
+            <AddAvatarBtn onPress={handleChooseAvatar}>
+              <AddCross />
+            </AddAvatarBtn>
           </AvatarBox>
           <Title>Реєстрація</Title>
-          <SignUpFormFields />
+          <SignUpFormFields avatar={avatar} setAvatar={setAvatar} />
           <TouchableOpacity onPress={handleNavigation}>
             <LinkText>Вже є акаунт? Увійти</LinkText>
           </TouchableOpacity>
@@ -74,14 +80,20 @@ const AuthWrapper = styled.View`
 `;
 
 const AvatarBox = styled.View`
+  position: relative;
   margin-top: -60px;
   width: 132px;
   height: 120px;
   margin-bottom: 32px;
 `;
 
-const Avatar = styled.View`
-  position: relative;
+const AvatarPlaceholder = styled.View`
+  background-color: #f6f6f6;
+  border-radius: 16px;
+  width: 120px;
+  height: 120px;
+`;
+const Avatar = styled(Image)`
   background-color: #f6f6f6;
   border-radius: 16px;
   width: 120px;
@@ -91,7 +103,7 @@ const Avatar = styled.View`
 const AddAvatarBtn = styled.TouchableOpacity`
   position: absolute;
   transform: translateX(13px);
-  right: 0px;
+  right: 10%;
   bottom: 14px;
   width: 25px;
   height: 25px;
